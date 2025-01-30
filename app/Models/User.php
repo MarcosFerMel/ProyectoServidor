@@ -12,7 +12,13 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, HasProfilePhoto, Notifiable, TwoFactorAuthenticatable;
+    use HasApiTokens;
+
+    /** @use HasFactory<\Database\Factories\UserFactory> */
+    use HasFactory;
+    use HasProfilePhoto;
+    use Notifiable;
+    use TwoFactorAuthenticatable;
 
     /**
      * The attributes that are mass assignable.
@@ -23,7 +29,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',  // Agregamos el campo 'role'
+        'role',
     ];
 
     /**
@@ -58,21 +64,5 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
-    }
-
-    /**
-     * Relación: Un usuario puede tener muchas reservas
-     */
-    public function reservations()
-    {
-        return $this->hasMany(Reservation::class);
-    }
-
-    /**
-     * Verifica si el usuario es administrador
-     */
-    public function isAdmin()
-    {
-        return $this->role === 'admin';
     }
 }

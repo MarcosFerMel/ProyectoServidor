@@ -10,19 +10,19 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up()
-{
-    Schema::create('rooms', function (Blueprint $table) {
-        $table->id();
-        $table->string('name');
-        $table->integer('capacity');
-        $table->string('type');
-        $table->decimal('price', 8, 2);
-        $table->string('image')->nullable();
-        $table->timestamps();
-        $table->foreignId('season_id')->constrained()->onDelete('cascade');
-
-    });
-}
+    {
+        Schema::create('rooms', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->integer('capacity');
+            $table->string('type');
+            $table->decimal('price', 8, 2);
+            $table->string('image')->nullable();
+            $table->foreignId('season_id')->constrained()->onDelete('cascade'); // ← Mueve esta línea arriba
+            $table->timestamps();
+        });
+    }
+    
 
 
     /**

@@ -6,6 +6,7 @@ use App\Http\Controllers\SeasonController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 
+
 Route::get('/users', [UserController::class, 'index']);
 
 
@@ -15,7 +16,11 @@ Route::get('/', function () {
 });
 
 // Rutas de habitaciones
-Route::resource('rooms', RoomController::class);
+Route::get('/rooms', [RoomController::class, 'index']);      // Listar habitaciones
+Route::post('/rooms', [RoomController::class, 'store']);     // Crear habitación
+Route::get('/rooms/{id}', [RoomController::class, 'show']);  // Mostrar una habitación
+Route::put('/rooms/{id}', [RoomController::class, 'update']); // Actualizar habitación
+Route::delete('/rooms/{id}', [RoomController::class, 'destroy']); // Eliminar habitación
 
 // Rutas de reservas
 Route::resource('reservations', ReservationController::class);
