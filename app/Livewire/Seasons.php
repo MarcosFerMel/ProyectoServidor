@@ -24,7 +24,7 @@ class Seasons extends Component
     {
         return view('livewire.seasons', [
             'seasons' => Season::paginate(5),
-        ]);
+        ])->layout('layouts.app');
     }
 
     public function create()

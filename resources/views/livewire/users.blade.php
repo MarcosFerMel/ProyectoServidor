@@ -45,4 +45,14 @@
                     <td class="border px-4 py-2">{{ $user->name }}</td>
                     <td class="border px-4 py-2">{{ $user->email }}</td>
                     <td class="border px-4 py-2">{{ ucfirst($user->role) }}</td>
-        
+                    <td class="border px-4 py-2">
+                        <button wire:click="edit({{ $user->id }})" class="bg-yellow-500 text-white px-2 py-1 rounded">Editar</button>
+                        <button wire:click="delete({{ $user->id }})" class="bg-red-500 text-white px-2 py-1 rounded ml-2">Eliminar</button>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+
+    {{ $users->links() }}
+</div>

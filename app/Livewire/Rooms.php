@@ -23,16 +23,22 @@ class Rooms extends Component
     ];
 
     public function render()
+{
+    return view('livewire.rooms', [
+        'rooms' => Room::with('season')->paginate(5),
+        'seasons' => Season::all(),
+    ])->layout('layouts.app');
+}
+
+
+    public function resetInputs()
     {
-        return view('livewire.rooms', [
-            'rooms' => Room::with('season')->paginate(5),
-            'seasons' => Season::all(),
-        ]);
+        $this->reset(['name', 'capacity', 'type', 'price', 'season_id', 'room_id', 'isEdit']);
     }
 
     public function create()
     {
-        $this->reset(['name', 'capacity', 'type', 'price', 'season_id']);
+        $this->resetInputs();
         $this->isEdit = false;
     }
 
@@ -47,6 +53,7 @@ class Rooms extends Component
             'season_id' => $this->season_id,
         ]);
         session()->flash('message', 'Habitación creada con éxito.');
+        $this->resetInputs();
     }
 
     public function edit($id)
@@ -72,6 +79,7 @@ class Rooms extends Component
             'season_id' => $this->season_id,
         ]);
         session()->flash('message', 'Habitación actualizada.');
+        $this->resetInputs();
     }
 
     public function delete($id)

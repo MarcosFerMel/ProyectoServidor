@@ -25,12 +25,17 @@ class Users extends Component
     {
         return view('livewire.users', [
             'users' => User::paginate(5),
-        ]);
+        ])->layout('layouts.app');
+    }
+
+    public function resetInputs()
+    {
+        $this->reset(['name', 'email', 'password', 'role', 'user_id', 'isEdit']);
     }
 
     public function create()
     {
-        $this->reset(['name', 'email', 'password', 'role']);
+        $this->resetInputs();
         $this->isEdit = false;
     }
 
@@ -44,6 +49,7 @@ class Users extends Component
             'role' => $this->role,
         ]);
         session()->flash('message', 'Usuario creado con éxito.');
+        $this->resetInputs();
     }
 
     public function edit($id)
@@ -70,6 +76,7 @@ class Users extends Component
             'role' => $this->role,
         ]);
         session()->flash('message', 'Usuario actualizado.');
+        $this->resetInputs();
     }
 
     public function delete($id)

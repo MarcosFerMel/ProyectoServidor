@@ -29,8 +29,9 @@ class Reservations extends Component
             'reservations' => Reservation::with(['user', 'room'])->paginate(5),
             'users' => User::all(),
             'rooms' => Room::all(),
-        ]);
+        ])->layout('layouts.app');
     }
+    
 
     public function create()
     {
