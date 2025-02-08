@@ -9,14 +9,12 @@ use App\Livewire\Rooms;
 use App\Livewire\Reservations;
 use App\Livewire\Seasons;
 use App\Livewire\Users;
+use App\Models\Room;
 
 // Página principal (Usuarios NO autenticados)
 Route::get('/', function () {
-    return view('welcome');
+    return view('welcome'); // Página de inicio
 })->name('home');
-
-// Rutas accesibles para TODOS (usuarios autenticados y visitantes)
-Route::get('/rooms', [RoomController::class, 'index'])->name('rooms'); // Deja la API disponible
 
 // Middleware para autenticación de usuarios REGISTRADOS
 Route::middleware([
@@ -42,6 +40,12 @@ Route::middleware([
         Route::get('/admin/users', Users::class)->name('users');
     });
 });
+
+// Rutas accesibles para TODOS (usuarios autenticados y visitantes)
+Route::get('/rooms', function () {
+    $rooms = Room::all();
+    return view('rooms.index', compact('rooms'));
+})->name('rooms');
 
 // Rutas API (Para Postman o AJAX)
 Route::prefix('api')->group(function () {
