@@ -11,21 +11,25 @@ class ReservationController extends Controller
 {
     public function index()
 {
-    try {
-        $reservations = Reservation::with(['user', 'room'])->get();
+    $user = auth()->user();
 
-        if ($reservations->isEmpty()) {
-            return response()->json(['message' => 'No hay reservas registradas'], 200);
-        }
-
-        return response()->json($reservations, 200);
-    } catch (\Exception $e) {
-        return response()->json([
-            'error' => 'Ocurrió un error',
-            'message' => $e->getMessage(),
-        ], 500);
+    if (!$user) {
+        return redirect()->route('login')->with('error', 'Debes iniciar sesión para ver tus reservas.');
     }
+
+    // Si el usuario es administrador, muestra todas las reservas con las relaciones
+    if ($user->role === 'admin') {
+        $reservations = Reservation::with(['room', 'user'])->get();
+    } else {
+        // Si el usuario es normal, solo muestra sus reservas
+        $reservations = Reservation::where('user_id', $user->id)->with('room')->get();
+    }
+
+    return view('reservations.index', compact('reservations'));
 }
+
+
+
 
     
     

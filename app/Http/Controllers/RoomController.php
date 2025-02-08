@@ -9,9 +9,16 @@ class RoomController extends Controller
 {
     public function index()
 {
-    $rooms = Room::all(); // Verificar que Room está bien definido
-    return response()->json($rooms);
+    // Verificamos si la solicitud viene de una API o desde el navegador
+    if (request()->expectsJson()) {
+        return response()->json(Room::all());
+    }
+
+    // Para usuarios normales, cargamos la vista con las habitaciones
+    $rooms = Room::with('season')->get();
+    return view('rooms.index', compact('rooms'));
 }
+
 
 
     public function create()
