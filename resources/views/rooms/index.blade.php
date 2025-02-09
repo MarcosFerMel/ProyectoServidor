@@ -48,7 +48,7 @@
                         <h2 class="text-2xl font-semibold text-gray-800">{{ $room->name }}</h2>
                         <p class="text-gray-500 text-sm">Capacidad: {{ $room->capacity }} personas</p>
                         <p class="text-gray-500 text-sm">Tipo: {{ ucfirst($room->type) }}</p>
-                        <p class="text-lg font-semibold text-blue-600 mt-2">${{ number_format($room->price, 2) }} / noche</p>
+                        <p class="text-lg font-semibold text-blue-600 mt-2">{{ number_format($room->price) }} €/noche</p>
 
                         <div class="mt-4">
                             <a href="#" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg">Reservar Ahora</a>

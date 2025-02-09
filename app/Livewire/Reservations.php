@@ -8,6 +8,7 @@ use App\Models\Reservation;
 use App\Models\User;
 use App\Models\Room;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 class Reservations extends Component
 {
@@ -30,9 +31,13 @@ class Reservations extends Component
 
     public function render()
     {
+        $user = Auth::user();
+
         return view('livewire.reservations', [
-            'reservations' => Reservation::with(['user', 'room'])->paginate(5),
-            'users' => User::all(),
+            'reservations' => ($user && $user->role === 'admin')
+                ? Reservation::with(['user', 'room'])->paginate(5)  // Admin ve todas las reservas
+                : Reservation::where('user_id', $user->id)->with(['room'])->paginate(5),  // Usuario solo ve sus reservas
+            'users' => ($user && $user->role === 'admin') ? User::all() : [], // Solo los administradores pueden ver la lista de usuarios
             'rooms' => Room::all(),
         ])->layout('layouts.app');
     }
@@ -44,13 +49,19 @@ class Reservations extends Component
 
     public function create()
     {
-        $this->resetInputs();
-        $this->isEdit = false;
-        $this->showForm = true;
+        if (Auth::check() && Auth::user()->role === 'admin') {
+            $this->resetInputs();
+            $this->isEdit = false;
+            $this->showForm = true;
+        }
     }
 
     public function store()
     {
+        if (!(Auth::check() && Auth::user()->role === 'admin')) {
+            return;
+        }
+
         $this->validate();
 
         Reservation::create([
@@ -67,6 +78,10 @@ class Reservations extends Component
 
     public function edit($id)
     {
+        if (!(Auth::check() && Auth::user()->role === 'admin')) {
+            return;
+        }
+
         $reservation = Reservation::findOrFail($id);
         $this->reservation_id = $reservation->id;
         $this->user_id = $reservation->user_id;
@@ -80,6 +95,10 @@ class Reservations extends Component
 
     public function update()
     {
+        if (!(Auth::check() && Auth::user()->role === 'admin')) {
+            return;
+        }
+
         $this->validate();
 
         Reservation::where('id', $this->reservation_id)->update([
@@ -96,6 +115,10 @@ class Reservations extends Component
 
     public function delete($id)
     {
+        if (!(Auth::check() && Auth::user()->role === 'admin')) {
+            return;
+        }
+
         Reservation::destroy($id);
         session()->flash('message', 'Reserva eliminada.');
     }
