@@ -11,8 +11,9 @@ class Rooms extends Component
 {
     use WithPagination;
 
-    public $name, $capacity, $type, $price, $season_id, $room_id;
+    public $name, $capacity, $type, $price, $season_id, $room_id, $images = [];
     public $isEdit = false;
+    public $showForm = false;
 
     protected $rules = [
         'name' => 'required|string|max:255',
@@ -20,38 +21,43 @@ class Rooms extends Component
         'type' => 'required|string',
         'price' => 'required|numeric',
         'season_id' => 'required|exists:seasons,id',
+        'images' => 'array',
     ];
 
     public function render()
-{
-    return view('livewire.rooms', [
-        'rooms' => Room::with('season')->paginate(5),
-        'seasons' => Season::all(),
-    ])->layout('layouts.app');
-}
+    {
+        $rooms = Room::with('season')->paginate(5);
 
+        return view('livewire.rooms', [
+            'rooms' => $rooms,
+            'seasons' => Season::all(),
+        ])->layout('layouts.app');
+    }
 
     public function resetInputs()
     {
-        $this->reset(['name', 'capacity', 'type', 'price', 'season_id', 'room_id', 'isEdit']);
+        $this->reset(['name', 'capacity', 'type', 'price', 'season_id', 'room_id', 'isEdit', 'showForm', 'images']);
     }
 
     public function create()
     {
         $this->resetInputs();
-        $this->isEdit = false;
+        $this->showForm = true;
     }
 
     public function store()
     {
         $this->validate();
+
         Room::create([
             'name' => $this->name,
             'capacity' => $this->capacity,
             'type' => $this->type,
             'price' => $this->price,
             'season_id' => $this->season_id,
+            'image' => json_encode(array_filter($this->images)),
         ]);
+
         session()->flash('message', 'Habitación creada con éxito.');
         $this->resetInputs();
     }
@@ -65,19 +71,24 @@ class Rooms extends Component
         $this->type = $room->type;
         $this->price = $room->price;
         $this->season_id = $room->season_id;
+        $this->images = json_decode($room->image, true) ?? [];
         $this->isEdit = true;
+        $this->showForm = true;
     }
 
     public function update()
     {
         $this->validate();
+
         Room::where('id', $this->room_id)->update([
             'name' => $this->name,
             'capacity' => $this->capacity,
             'type' => $this->type,
             'price' => $this->price,
             'season_id' => $this->season_id,
+            'image' => json_encode(array_filter($this->images)),
         ]);
+
         session()->flash('message', 'Habitación actualizada.');
         $this->resetInputs();
     }

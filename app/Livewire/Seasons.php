@@ -12,6 +12,7 @@ class Seasons extends Component
 
     public $name, $start_date, $end_date, $price_multiplier, $season_id;
     public $isEdit = false;
+    public $showForm = false; // Nueva variable para manejar el formulario
 
     protected $rules = [
         'name' => 'required|string|max:255',
@@ -27,10 +28,15 @@ class Seasons extends Component
         ])->layout('layouts.app');
     }
 
+    public function resetInputs()
+    {
+        $this->reset(['name', 'start_date', 'end_date', 'price_multiplier', 'season_id', 'isEdit', 'showForm']);
+    }
+
     public function create()
     {
-        $this->reset(['name', 'start_date', 'end_date', 'price_multiplier']);
-        $this->isEdit = false;
+        $this->resetInputs();
+        $this->showForm = true; // Mostrar formulario
     }
 
     public function store()
@@ -43,6 +49,7 @@ class Seasons extends Component
             'price_multiplier' => $this->price_multiplier,
         ]);
         session()->flash('message', 'Temporada creada con éxito.');
+        $this->resetInputs();
     }
 
     public function edit($id)
@@ -54,10 +61,16 @@ class Seasons extends Component
         $this->end_date = $season->end_date;
         $this->price_multiplier = $season->price_multiplier;
         $this->isEdit = true;
+        $this->showForm = true; // Mostrar formulario en modo edición
     }
 
     public function update()
     {
+        if (!$this->season_id) {
+            session()->flash('error', 'No se puede actualizar sin seleccionar una temporada.');
+            return;
+        }
+
         $this->validate();
         Season::where('id', $this->season_id)->update([
             'name' => $this->name,
@@ -66,6 +79,7 @@ class Seasons extends Component
             'price_multiplier' => $this->price_multiplier,
         ]);
         session()->flash('message', 'Temporada actualizada.');
+        $this->resetInputs(); // Ocultar formulario tras actualizar
     }
 
     public function delete($id)

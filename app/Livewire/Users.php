@@ -13,11 +13,12 @@ class Users extends Component
 
     public $name, $email, $password, $role, $user_id;
     public $isEdit = false;
+    public $showForm = false; // Control de visibilidad del formulario
 
     protected $rules = [
         'name' => 'required|string|max:255',
         'email' => 'required|email|unique:users,email',
-        'password' => 'required|min:6',
+        'password' => 'nullable|min:6',  // El password solo es obligatorio al crear un usuario
         'role' => 'required|in:admin,user',
     ];
 
@@ -30,24 +31,32 @@ class Users extends Component
 
     public function resetInputs()
     {
-        $this->reset(['name', 'email', 'password', 'role', 'user_id', 'isEdit']);
+        $this->reset(['name', 'email', 'password', 'role', 'user_id', 'isEdit', 'showForm']);
     }
 
     public function create()
     {
         $this->resetInputs();
         $this->isEdit = false;
+        $this->showForm = true; // Ahora se muestra el formulario
     }
 
     public function store()
     {
-        $this->validate();
+        $validatedData = $this->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6', // La contraseña es obligatoria al crear
+            'role' => 'required|in:admin,user',
+        ]);
+
         User::create([
             'name' => $this->name,
             'email' => $this->email,
             'password' => Hash::make($this->password),
             'role' => $this->role,
         ]);
+
         session()->flash('message', 'Usuario creado con éxito.');
         $this->resetInputs();
     }
@@ -60,6 +69,7 @@ class Users extends Component
         $this->email = $user->email;
         $this->role = $user->role;
         $this->isEdit = true;
+        $this->showForm = true;
     }
 
     public function update()
@@ -70,11 +80,13 @@ class Users extends Component
             'role' => 'required|in:admin,user',
         ]);
 
-        User::where('id', $this->user_id)->update([
+        $user = User::findOrFail($this->user_id);
+        $user->update([
             'name' => $this->name,
             'email' => $this->email,
             'role' => $this->role,
         ]);
+
         session()->flash('message', 'Usuario actualizado.');
         $this->resetInputs();
     }

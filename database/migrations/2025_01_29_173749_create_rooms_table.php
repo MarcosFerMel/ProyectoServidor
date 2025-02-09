@@ -17,7 +17,7 @@ return new class extends Migration
             $table->integer('capacity');
             $table->string('type');
             $table->decimal('price', 8, 2);
-            $table->string('image')->nullable();
+            $table->json('image')->nullable();
             $table->foreignId('season_id')->constrained()->onDelete('cascade'); // ← Mueve esta línea arriba
             $table->timestamps();
         });

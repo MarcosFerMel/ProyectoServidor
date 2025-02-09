@@ -7,6 +7,7 @@ use Livewire\WithPagination;
 use App\Models\Reservation;
 use App\Models\User;
 use App\Models\Room;
+use Illuminate\Validation\Rule;
 
 class Reservations extends Component
 {
@@ -14,14 +15,18 @@ class Reservations extends Component
 
     public $user_id, $room_id, $check_in, $check_out, $status, $reservation_id;
     public $isEdit = false;
+    public $showForm = false;
 
-    protected $rules = [
-        'user_id' => 'required|exists:users,id',
-        'room_id' => 'required|exists:rooms,id',
-        'check_in' => 'required|date',
-        'check_out' => 'required|date|after:check_in',
-        'status' => 'required|in:pending,confirmed,cancelled',
-    ];
+    protected function rules()
+    {
+        return [
+            'user_id' => ['required', Rule::exists('users', 'id')],
+            'room_id' => ['required', Rule::exists('rooms', 'id')],
+            'check_in' => 'required|date|after_or_equal:today',
+            'check_out' => 'required|date|after:check_in',
+            'status' => 'required|in:pending,confirmed,cancelled',
+        ];
+    }
 
     public function render()
     {
@@ -31,17 +36,23 @@ class Reservations extends Component
             'rooms' => Room::all(),
         ])->layout('layouts.app');
     }
-    
+
+    public function resetInputs()
+    {
+        $this->reset(['user_id', 'room_id', 'check_in', 'check_out', 'status', 'reservation_id', 'isEdit', 'showForm']);
+    }
 
     public function create()
     {
-        $this->reset(['user_id', 'room_id', 'check_in', 'check_out', 'status']);
+        $this->resetInputs();
         $this->isEdit = false;
+        $this->showForm = true;
     }
 
     public function store()
     {
         $this->validate();
+
         Reservation::create([
             'user_id' => $this->user_id,
             'room_id' => $this->room_id,
@@ -49,7 +60,9 @@ class Reservations extends Component
             'check_out' => $this->check_out,
             'status' => $this->status,
         ]);
+
         session()->flash('message', 'Reserva creada con éxito.');
+        $this->resetInputs();
     }
 
     public function edit($id)
@@ -62,11 +75,13 @@ class Reservations extends Component
         $this->check_out = $reservation->check_out;
         $this->status = $reservation->status;
         $this->isEdit = true;
+        $this->showForm = true;
     }
 
     public function update()
     {
         $this->validate();
+
         Reservation::where('id', $this->reservation_id)->update([
             'user_id' => $this->user_id,
             'room_id' => $this->room_id,
@@ -74,7 +89,9 @@ class Reservations extends Component
             'check_out' => $this->check_out,
             'status' => $this->status,
         ]);
-        session()->flash('message', 'Reserva actualizada.');
+
+        session()->flash('message', 'Reserva actualizada con éxito.');
+        $this->resetInputs();
     }
 
     public function delete($id)

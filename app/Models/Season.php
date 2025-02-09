@@ -11,6 +11,6 @@ class Season extends Model
         'start_date',
         'end_date',
         'price_multiplier',
-        'password',
     ];
+    
 }
